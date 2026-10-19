@@ -286,12 +286,22 @@ def generateNacaCoords(number, n, finite_TE, half_cosine_spacing,scale,posX,posY
         coords=naca4(number, n, finite_TE, half_cosine_spacing)
     elif len(number)==5:
         coords=naca5(number, n, finite_TE, half_cosine_spacing)
+    elif "." in number and len(number.split(".")[0])==4:
+        # 4-digit series with a fractional thickness, e.g. "0015.5" for t/c = 15.5%
+        # (naca4 already parses the thickness field as a float)
+        coords=naca4(number, n, finite_TE, half_cosine_spacing)
     else:
         raise ValueError("Invalid NACA number")
     return coords
 
 
 def generateNaca(number, n=240, finite_TE = False, half_cosine_spacing = True,scale=1,posX=0,posY=0,posZ=0,rotX=0,rotY=0,rotZ=0,rot=0,useSpline=True,splitSpline=False):
+    """
+    Returns (face, coords) for a 4 or 5 digit NACA number string.
+    The 4-digit series accepts a fractional thickness, e.g. "0015.5" for t/c = 15.5%.
+    coords are returned on the unit chord: scale applies to the face only.
+    rotX/rotY/rotZ/rot are currently unsupported (ignored).
+    """
     coords=generateNacaCoords(number, n, finite_TE , half_cosine_spacing ,scale,posX,posY,posZ,rotX,rotY,rotZ)
     if useSpline:
         if splitSpline:
@@ -331,7 +341,12 @@ def generateNaca(number, n=240, finite_TE = False, half_cosine_spacing = True,sc
                 lines.append(Part.makeLine(last_v, first_v))
         wire = Part.Wire(lines)
 
-    face = Part.Face(wire).scale(scale) #Scale the foil
+    #Scale the foil - transformGeometry with a Matrix: Shape.scale() is the
+    #legacy in-place transform that does not work with v0.18 (issue31);
+    #same fix as airPlaneAirFoil.process
+    scaleMatrix = FreeCAD.Matrix()
+    scaleMatrix.scale(scale, scale, scale)
+    face = Part.Face(wire).transformGeometry(scaleMatrix)
     #face.Placement.Rotation.Axis.x=rotX
     #face.Placement.Rotation.Axis.y=rotY
     #face.Placement.Rotation.Axis.z=rotZ
