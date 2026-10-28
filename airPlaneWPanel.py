@@ -261,7 +261,7 @@ class WingPanel:
 
         # need to convert into function not attributes
         obj.addProperty("App::PropertyVector", "Axis",    "WingPanel",   "Direction axis").Axis = axis
-        obj.addProperty("App::PropertyLinkList",  "Hullcurves",   "WingEdge",   "Bounding curves").Hullcurves=[_leadingedge,_traillingedge]
+        obj.addProperty("App::PropertyLinkList",  "Hullcurves",   "WingEdge",   "Bounding curves").Hullcurves=[e for e in (_leadingedge,_traillingedge) if e is not None]
 
         # leadingEdge : bord d'attaque
         obj.addProperty("App::PropertyLinkList","Edges","WingEdges",QtCore.QT_TRANSLATE_NOOP("App::Property","Select the leading edge of the panal, line or Spline")).Edges=[]
@@ -678,6 +678,12 @@ class CommandWPanel:
     def Activated(self):
         b=[]
         selection = FreeCADGui.Selection.getSelectionEx()
+        if not selection :
+            msg=("Wing Panel : select 4 objects in order -"
+                 " wing, root rib, path sketch, envelope sketch")
+            FreeCAD.Console.PrintError(msg+"\n")
+            QtGui.QMessageBox.warning(None, "Wing Panel", msg)
+            return
         if selection :
            if len(selection)==4:
               base = FreeCAD.ActiveDocument.getObject((selection[0].ObjectName))
@@ -790,20 +796,11 @@ class CommandWPanel:
                   b.append(obj)
                   FreeCAD.ActiveDocument.recompute()
            else :
-              #---------------------création des nervures temporaires
-              #_rootRib=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","RibRoot_")
-              #WingRib(_rootRib,"/Users/fredericnivoix/Library/Preferences/FreeCAD/Mod/AirPlaneDesign/wingribprofil/naca/naca2412.dat",False,0,200,0,0,0,0,0,0)
-              #ViewProviderWingRib(_rootRib.ViewObject)
-
-              #_tipRib=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","RibTip_")
-              #WingRib(_tipRib,"/Users/fredericnivoix/Library/Preferences/FreeCAD/Mod/AirPlaneDesign/wingribprofil/naca/naca2412.dat",False,0,200,0,500,0,0,0,0)
-              #ViewProviderWingRib(_tipRib.ViewObject)
-
-              #----------
-
-              obj=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","WingPanel")
-              WingPanel(obj,None,None, None,None,None,200,100,100,0,0)
-              ViewProviderPanel(obj.ViewObject)
+              msg=("Wing Panel : select 4 objects in order -"
+                   " wing, root rib, path sketch, envelope sketch")
+              FreeCAD.Console.PrintError(msg+"\n")
+              QtGui.QMessageBox.warning(None, "Wing Panel", msg)
+              return
 
         if selection : #selection==None :
            try :
