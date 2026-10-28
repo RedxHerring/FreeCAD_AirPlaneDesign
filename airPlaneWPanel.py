@@ -32,6 +32,8 @@ import CompoundTools.Explode
 try:
     import CurvedShapes
 except ImportError:
+    if not FreeCAD.GuiUp:
+        raise
     #FreeCAD.Console.PrintError("The 'CurvedShapes' module is required. Please install or load it first.\n")
     # Create a custom popup using PySide
     msg_box = QtGui.QMessageBox()
