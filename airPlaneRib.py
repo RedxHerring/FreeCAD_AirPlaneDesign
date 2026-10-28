@@ -367,6 +367,11 @@ class CommandWingRib:
         if r:
             if editor.form.NACANumber.text()=="" :
                 b=editor.filePath
+                if not b or not os.path.isfile(b):
+                    msg="Create a Rib : select a .dat profile file or enter a NACA number"
+                    FreeCAD.Console.PrintError(msg+"\n")
+                    QtGui.QMessageBox.warning(None, "Create a Rib", msg)
+                    return
                 a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","wrib")
                 WingRib(a,b,False,0,editor.form.chord.value(),0,0,0,1,0,0,0,editor.form.thickness.value(),editor.form.useSpline.isChecked(),_splitSpline=editor.form.splitSpline.isChecked())
                 ViewProviderWingRib(a.ViewObject)
@@ -377,7 +382,8 @@ class CommandWingRib:
                 ViewProviderWingRib(a.ViewObject)
             FreeCAD.ActiveDocument.recompute()
         else :
-            FreeCAD.Console.PrintMessage("Rib creation canceled")
+            FreeCAD.Console.PrintMessage("Rib creation canceled\n")
+            QtGui.QMessageBox.information(None, "Create a Rib", "Rib creation canceled")
 
 if FreeCAD.GuiUp:
     #Register the FreeCAD command

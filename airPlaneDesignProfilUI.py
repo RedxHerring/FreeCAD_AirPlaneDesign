@@ -47,6 +47,7 @@ class zoomableGraphic(QtGui.QGraphicsView):
 
 class SelectObjectUI():
     def __init__(self):
+        self.filePath = None
         path_to_ui = os.path.join(os.path.dirname(__file__), 'resources', 'selectRibProfil.ui')
         loader=QtUiTools.QUiLoader()
         loader.registerCustomWidget(zoomableGraphic)
