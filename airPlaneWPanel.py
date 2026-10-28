@@ -60,6 +60,19 @@ smWB_icons_path =  os.path.join( os.path.dirname(__file__), 'resources', 'icons'
 def translate(context, text, disambig=None):
     return QtCore.QCoreApplication.translate(context, text, disambig)
 
+# What CommandWPanel.Activated expects the user to pick, in order.
+# Derived from what the code does with each pick: base.WingPanels,
+# rib-profile source, __sortEdges__(_path) -> one positioning edge per
+# panel, sortEdges(_envelope) -> exactly 2 edges split into the panel
+# leading/trailing hull curves.
+_WING_PANEL_USAGE = ("Wing Panel : select 4 objects in this order:\n"
+                     "1. Wing - the Wing object the panels are added to\n"
+                     "2. Root rib - the rib whose profile the panel copies\n"
+                     "3. Path - sketch/wire of spanwise lines, one edge per panel,\n"
+                     "   setting where each panel sits on the wing\n"
+                     "4. Envelope - the wing outline sketch, exactly 2 edges:\n"
+                     "   leading edge + trailing edge")
+
 
 def scaleByBoundbox(shape, boundbox, doScaleXYZ, copy=True):
         basebbox = shape.BoundBox
@@ -679,10 +692,8 @@ class CommandWPanel:
         b=[]
         selection = FreeCADGui.Selection.getSelectionEx()
         if not selection :
-            msg=("Wing Panel : select 4 objects in order -"
-                 " wing, root rib, path sketch, envelope sketch")
-            FreeCAD.Console.PrintError(msg+"\n")
-            QtGui.QMessageBox.warning(None, "Wing Panel", msg)
+            FreeCAD.Console.PrintError(_WING_PANEL_USAGE+"\n")
+            QtGui.QMessageBox.warning(None, "Wing Panel", _WING_PANEL_USAGE)
             return
         if selection :
            if len(selection)==4:
@@ -796,10 +807,8 @@ class CommandWPanel:
                   b.append(obj)
                   FreeCAD.ActiveDocument.recompute()
            else :
-              msg=("Wing Panel : select 4 objects in order -"
-                   " wing, root rib, path sketch, envelope sketch")
-              FreeCAD.Console.PrintError(msg+"\n")
-              QtGui.QMessageBox.warning(None, "Wing Panel", msg)
+              FreeCAD.Console.PrintError(_WING_PANEL_USAGE+"\n")
+              QtGui.QMessageBox.warning(None, "Wing Panel", _WING_PANEL_USAGE)
               return
 
         if selection : #selection==None :

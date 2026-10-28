@@ -29,6 +29,14 @@ def main():
         "bad selection must surface a user-visible error"
     assert activated.index("QMessageBox") < activated.index("addObject"), \
         "bad selection must return before any document object is created"
+
+    usage = src.split("_WING_PANEL_USAGE = (", 1)[1].split(")", 1)[0]
+    assert "Wing -" in usage and "Root rib -" in usage \
+        and "Path -" in usage and "Envelope -" in usage, \
+        "usage text must name all 4 picks in plain language"
+    assert "2 edges" in usage, "usage text must state the envelope needs 2 edges"
+    assert activated.count("_WING_PANEL_USAGE") == 4, \
+        "both bad-selection paths (empty and wrong count) must use the usage text"
     print("testWPanelValidation: ok")
 
 
